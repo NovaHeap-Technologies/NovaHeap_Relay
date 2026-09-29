@@ -6,6 +6,13 @@
 
 NHRelay *NHRelay::_all = nullptr;
 
+// Time since `since`, correct across the millis() rollover every 49.7 days. millis() is
+// 32-bit on Arduino boards, so the subtraction is done in 32 bits even where
+// unsigned long is 64-bit (such as a Linux PC running the unit tests).
+static inline uint32_t elapsed(unsigned long now, unsigned long since) {
+  return (uint32_t)(now - since);
+}
+
 NHRelay::NHRelay(uint8_t pin, NHPolarity polarity)
     : _pin(pin),
       _activeLow(polarity == NH_ACTIVE_LOW),
@@ -173,15 +180,15 @@ void NHRelay::requestOn(unsigned long now) {
 }
 
 void NHRelay::service(unsigned long now) {
-  if (_state && _pulseLen && now - _pulseStart >= _pulseLen) {
+  if (_state && _pulseLen && elapsed(now, _pulseStart) >= _pulseLen) {
     _pulseLen = 0;
     _want = false;
   }
   if (_want == _state) return;
 
   if (_state) {
-    if (now - _changedAt >= _minOn) write(false, now);
-  } else if (now - _changedAt >= _minOff && groupClear(now)) {
+    if (elapsed(now, _changedAt) >= _minOn) write(false, now);
+  } else if (elapsed(now, _changedAt) >= _minOff && groupClear(now)) {
     write(true, now);
   }
 }
@@ -194,7 +201,7 @@ bool NHRelay::groupClear(unsigned long now) {
       r->service(now);  // it may be allowed to switch off now
       if (r->_state) return false;
     }
-    if (r->_everOn && now - r->_changedAt < _deadTime) return false;
+    if (r->_everOn && elapsed(now, r->_changedAt) < _deadTime) return false;
   }
   return true;
 }
