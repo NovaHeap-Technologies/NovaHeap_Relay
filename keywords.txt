@@ -1,0 +1,23 @@
+# NovaHeap_Relay syntax colouring for the Arduino IDE
+
+NHRelay	KEYWORD1
+NHPolarity	KEYWORD1
+
+begin	KEYWORD2
+on	KEYWORD2
+off	KEYWORD2
+toggle	KEYWORD2
+set	KEYWORD2
+onFor	KEYWORD2
+forceOff	KEYWORD2
+update	KEYWORD2
+updateAll	KEYWORD2
+isOn	KEYWORD2
+isWaiting	KEYWORD2
+pin	KEYWORD2
+setMinOnTime	KEYWORD2
+setMinOffTime	KEYWORD2
+interlockWith	KEYWORD2
+
+NH_ACTIVE_HIGH	LITERAL1
+NH_ACTIVE_LOW	LITERAL1
