@@ -8,15 +8,27 @@
   Type f (forward), r (reverse) or s (stop) in the Serial Monitor at 9600 baud.
 
   Wiring:  forward relay IN -> pin 5,  reverse relay IN -> pin 6
+           (GPIO 4 and 13 on ESP32 and ESP8266)
 
   NovaHeap_Relay by NovaHeap Technologies
 */
 
 #include <NovaHeap_Relay.h>
 
+// The original ESP32 and the ESP8266 wire GPIO 6 to 11 to their flash chip, and GPIO 5
+// glitches at boot on ESP32, so they use other pins. ESP32-S2, S3 and C3 chips aren't
+// affected and keep the usual pins.
+#if defined(CONFIG_IDF_TARGET_ESP32) || defined(ARDUINO_ARCH_ESP8266)
+const int FORWARD_PIN = 4;
+const int REVERSE_PIN = 13;
+#else
+const int FORWARD_PIN = 5;
+const int REVERSE_PIN = 6;
+#endif
+
 // Not named just "forward" and "reverse": ESP8266 and RP2040 boards already have a reverse().
-NHRelay motorForward(5, NH_ACTIVE_LOW);
-NHRelay motorReverse(6, NH_ACTIVE_LOW);
+NHRelay motorForward(FORWARD_PIN, NH_ACTIVE_LOW);
+NHRelay motorReverse(REVERSE_PIN, NH_ACTIVE_LOW);
 
 void setup() {
   Serial.begin(9600);

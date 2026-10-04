@@ -8,6 +8,7 @@
   Type 0 (off), 1 (low), 2 (medium) or 3 (high) in the Serial Monitor at 9600 baud.
 
   Wiring:  low relay IN -> pin 4,  medium -> pin 5,  high -> pin 6
+           ESP32: GPIO 4, 13 and 25.  ESP8266: GPIO 4, 5 and 12.
 
   WARNING: fan taps carry mains voltage. Use relay modules rated for it, keep the
   wiring in an enclosure, and don't work on it while it's plugged in.
@@ -17,7 +18,16 @@
 
 #include <NovaHeap_Relay.h>
 
+// The original ESP32 and the ESP8266 wire GPIO 6 to 11 to their flash chip, and on ESP32
+// some other pins glitch at boot, so they use other pins. ESP32-S2, S3 and C3 chips
+// aren't affected and keep the usual pins.
+#if defined(CONFIG_IDF_TARGET_ESP32)
+NHRelay speeds[] = {{4, NH_ACTIVE_LOW}, {13, NH_ACTIVE_LOW}, {25, NH_ACTIVE_LOW}};
+#elif defined(ARDUINO_ARCH_ESP8266)
+NHRelay speeds[] = {{4, NH_ACTIVE_LOW}, {5, NH_ACTIVE_LOW}, {12, NH_ACTIVE_LOW}};
+#else
 NHRelay speeds[] = {{4, NH_ACTIVE_LOW}, {5, NH_ACTIVE_LOW}, {6, NH_ACTIVE_LOW}};
+#endif
 const char *const NAMES[] = {"low", "medium", "high"};
 
 void setup() {

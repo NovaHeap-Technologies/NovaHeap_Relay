@@ -96,6 +96,7 @@ NHRelay relays[] = {{4, NH_ACTIVE_LOW}, {5, NH_ACTIVE_LOW}, {6, NH_ACTIVE_LOW}};
 ## Hardware notes
 
 - **While the board resets and during the bootloader, pins are inputs**, before your code runs. If your relay clicks at power-up, add a 10 kΩ resistor from the relay input to 5 V (active-LOW boards) or to GND (active-HIGH boards).
+- **On ESP32 and ESP8266, GPIO 6 to 11 run the flash chip.** Driving them crashes the board, so the examples switch to other pins there. GPIO 4 and 13 are safe on both. Avoid pins that matter at boot: 0, 2, 5, 12, 14 and 15 on ESP32 (34 to 39 are input-only), and 0, 2, 15 and 16 on ESP8266. ESP32-S2, S3 and C3 chips use different flash pins.
 - **Don't drive a bare relay coil straight from a pin.** Use a relay module, or a transistor with a flyback diode across the coil.
 - **Mains voltage can kill.** Use relays rated for the load, fuse the circuit, keep the wiring in an enclosure, and never work on it while it's plugged in.
 

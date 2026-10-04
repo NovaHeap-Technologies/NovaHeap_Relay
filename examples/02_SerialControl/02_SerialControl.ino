@@ -5,6 +5,7 @@
   Set the Serial Monitor to 9600 baud.
 
   Wiring: relays on pins 4, 5, 6 and 7 (the pins most 4-relay shields use).
+          ESP32: GPIO 4, 13, 25 and 26.  ESP8266: GPIO 4, 5, 12 and 13.
   Relay shields are usually active-HIGH; plug-in relay modules are usually active-LOW.
 
   NovaHeap_Relay by NovaHeap Technologies
@@ -12,8 +13,17 @@
 
 #include <NovaHeap_Relay.h>
 
+// The original ESP32 and the ESP8266 wire GPIO 6 to 11 to their flash chip, and on ESP32
+// some other pins glitch at boot, so they use other pins. ESP32-S2, S3 and C3 chips
+// aren't affected and keep the usual pins.
 // Relays can't be copied, so an array uses this brace form.
+#if defined(CONFIG_IDF_TARGET_ESP32)
+NHRelay relays[] = {{4, NH_ACTIVE_HIGH}, {13, NH_ACTIVE_HIGH}, {25, NH_ACTIVE_HIGH}, {26, NH_ACTIVE_HIGH}};
+#elif defined(ARDUINO_ARCH_ESP8266)
+NHRelay relays[] = {{4, NH_ACTIVE_HIGH}, {5, NH_ACTIVE_HIGH}, {12, NH_ACTIVE_HIGH}, {13, NH_ACTIVE_HIGH}};
+#else
 NHRelay relays[] = {{4, NH_ACTIVE_HIGH}, {5, NH_ACTIVE_HIGH}, {6, NH_ACTIVE_HIGH}, {7, NH_ACTIVE_HIGH}};
+#endif
 const int RELAY_COUNT = sizeof(relays) / sizeof(relays[0]);
 
 void printStates() {

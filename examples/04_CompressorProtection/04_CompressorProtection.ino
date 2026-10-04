@@ -7,7 +7,7 @@
   waits too. That is on purpose.
 
   Wiring:  LM35 temperature sensor output -> A0 (10 mV per degree C)
-           relay module IN -> pin 8
+           relay module IN -> pin 8 (GPIO 4 on ESP32 and ESP8266)
 
   The times here are short so you can watch it work. Real compressors usually need
   about 3 minutes off (180000 ms).
@@ -22,7 +22,15 @@ const float TURN_ON_ABOVE = 26.0;   // degrees C
 const float TURN_OFF_BELOW = 24.0;  // the gap stops it chattering around one value
 const float VOLTS_PER_STEP = 5.0 / 1023.0;  // change 5.0 to 3.3 on a 3.3 V board
 
-NHRelay compressor(8, NH_ACTIVE_LOW);
+// The original ESP32 and the ESP8266 wire GPIO 6 to 11 to their flash chip, so they use
+// another pin. ESP32-S2, S3 and C3 chips aren't affected and keep the usual pin.
+#if defined(CONFIG_IDF_TARGET_ESP32) || defined(ARDUINO_ARCH_ESP8266)
+const int RELAY_PIN = 4;
+#else
+const int RELAY_PIN = 8;
+#endif
+
+NHRelay compressor(RELAY_PIN, NH_ACTIVE_LOW);
 
 void setup() {
   Serial.begin(9600);
