@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+- `04_CompressorProtection`: read the right temperature on ESP32. Its ADC reads 0 to 4095,
+  not 0 to 1023, so the sketch showed several times the real temperature and the
+  compressor never switched off. It now uses the factory-calibrated `analogReadMilliVolts()`.
+
 ## 1.0.1
 
 - Examples: use safe pins on ESP32 and ESP8266. The examples drove pins 4 to 8, but those

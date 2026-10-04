@@ -20,7 +20,14 @@
 const int SENSOR_PIN = A0;
 const float TURN_ON_ABOVE = 26.0;   // degrees C
 const float TURN_OFF_BELOW = 24.0;  // the gap stops it chattering around one value
-const float VOLTS_PER_STEP = 5.0 / 1023.0;  // change 5.0 to 3.3 on a 3.3 V board
+
+#if defined(ARDUINO_ARCH_ESP32)
+// ESP32 reads 0 to 4095, not 0 to 1023, and isn't linear, so use its calibrated millivolts.
+float readCelsius() { return analogReadMilliVolts(SENSOR_PIN) / 10.0; }
+#else
+const float VOLTS_PER_STEP = 5.0 / 1023.0;  // change 5.0 to 3.3 on a 3.3 V board (3.2 on ESP8266)
+float readCelsius() { return analogRead(SENSOR_PIN) * VOLTS_PER_STEP * 100.0; }
+#endif
 
 // The original ESP32 and the ESP8266 wire GPIO 6 to 11 to their flash chip, so they use
 // another pin. ESP32-S2, S3 and C3 chips aren't affected and keep the usual pin.
@@ -42,7 +49,7 @@ void setup() {
 void loop() {
   compressor.update();
 
-  float celsius = analogRead(SENSOR_PIN) * VOLTS_PER_STEP * 100.0;
+  float celsius = readCelsius();
   if (celsius > TURN_ON_ABOVE) {
     compressor.on();
   } else if (celsius < TURN_OFF_BELOW) {
